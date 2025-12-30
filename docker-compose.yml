@@ -1,0 +1,41 @@
+services:
+  coordinator:
+    build: .
+    command: ["/coordinator"]
+    ports:
+      - "7000:7000"
+    networks:
+      - auction
+
+  node-a:
+    build: .
+    command: ["/node", "-id=node-A", "-coord=coordinator:7000", "-rest=:8080", "-grpc=:9090", "-peers=node-b:9090,node-c:9090"]
+    ports:
+      - "8080:8080"
+    depends_on:
+      - coordinator
+    networks:
+      - auction
+
+  node-b:
+    build: .
+    command: ["/node", "-id=node-B", "-coord=coordinator:7000", "-rest=:8080", "-grpc=:9090", "-peers=node-a:9090,node-c:9090"]
+    ports:
+      - "8081:8080"
+    depends_on:
+      - coordinator
+    networks:
+      - auction
+
+  node-c:
+    build: .
+    command: ["/node", "-id=node-C", "-coord=coordinator:7000", "-rest=:8080", "-grpc=:9090", "-peers=node-a:9090,node-b:9090"]
+    ports:
+      - "8082:8080"
+    depends_on:
+      - coordinator
+    networks:
+      - auction
+
+networks:
+  auction:

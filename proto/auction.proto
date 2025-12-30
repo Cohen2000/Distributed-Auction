@@ -1,0 +1,26 @@
+syntax = "proto3";
+package auction;
+option go_package = "distributed-auction/proto";
+
+service CoordinatorService {
+  rpc Acquire(LockRequest) returns (LockResponse);
+  rpc Release(LockRequest) returns (LockResponse);
+}
+
+service NodeService {
+  rpc Replicate(AuctionState) returns (Ack);
+}
+
+message LockRequest {
+  string node_id = 1;
+}
+
+message LockResponse {}
+
+message AuctionState {
+  int64  highest_bid    = 1;
+  string highest_bidder = 2;
+  int64  lamport        = 3;
+}
+
+message Ack {}
