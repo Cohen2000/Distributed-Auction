@@ -88,7 +88,9 @@ func (n *Node) SubmitBid(amount int64, bidderID string) (domain.State, bool, err
 }
 
 // Replicate handles incoming state from other nodes.
-// Only applies if Lamport timestamp is higher (newer version).
+// Applies the incoming state if it is newer, using Lamport timestamps.
+// If Lamport timestamps tie, it uses deterministic tie-breakers (bid amount, then bidder ID)
+// to ensure convergence.
 func (n *Node) Replicate(ctx context.Context, req *pb.AuctionState) (*pb.Ack, error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
