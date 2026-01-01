@@ -14,6 +14,13 @@ Nodes accept bids locally and replicate state asynchronously to reach a consiste
 
 ## Start the System
 
+1. Download the project archive and extract it.
+
+2. Open a terminal and navigate to the project root directory  
+   (the folder containing `docker-compose.yml`).
+
+3. Build and start the system:
+
 ```bash
 docker compose up --build
 ```
