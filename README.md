@@ -16,7 +16,7 @@ Nodes accept bids locally and replicate state asynchronously to reach a consiste
 
 1. Download the project archive and extract it.
 
-2. Open a terminal and navigate to the project root directory  
+2. Open a terminal and navigate to the project root directory
    (the folder containing `docker-compose.yml`).
 
 3. Build and start the system:
@@ -35,6 +35,7 @@ This starts:
   * node-C: REST on `localhost:8082`
 
 Wait until all services are running.
+Keep the services running and execute the following commands in a separate terminal.
 
 ---
 
@@ -115,7 +116,7 @@ Expected behavior:
 
 ---
 
-### Concurrent bids on different nodes
+### Concurrent bids on different nodes (simple example)
 
 ```bash
 curl -X POST http://localhost:8080/bid \
@@ -130,7 +131,34 @@ wait
 ```
 
 Both requests may return `applied=true`, since bids are evaluated locally.
-To observe the final auction result, always query /state after replication.
+To observe the final auction result, always query `/state` after replication.
+
+---
+
+### OR: Concurrent stress test with many bids
+
+The following command submits many bids concurrently to all nodes:
+
+```bash
+for i in {1..20}; do
+  curl -s -X POST http://localhost:8080/bid \
+    -H "Content-Type: application/json" \
+    -d "{\"amount\": $((RANDOM % 500 + 1)), \"bidderId\": \"alice_$i\"}" &
+
+  curl -s -X POST http://localhost:8081/bid \
+    -H "Content-Type: application/json" \
+    -d "{\"amount\": $((RANDOM % 500 + 1)), \"bidderId\": \"bob_$i\"}" &
+
+  curl -s -X POST http://localhost:8082/bid \
+    -H "Content-Type: application/json" \
+    -d "{\"amount\": $((RANDOM % 500 + 1)), \"bidderId\": \"carol_$i\"}" &
+done
+
+wait
+```
+
+This sends many concurrent requests and demonstrates correct synchronization,
+replication, and eventual consistency under load.
 
 ---
 
@@ -144,7 +172,7 @@ curl http://localhost:8081/state
 curl http://localhost:8082/state
 ```
 
-Expected output on all nodes:
+Expected output on all nodes (only for simple example):
 
 ```json
 {
